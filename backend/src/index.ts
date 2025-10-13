@@ -4,6 +4,7 @@ import { Server } from "socket.io";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import authRouter from "./routes/authRouter";
+import messageSocket from "./socket/messageSocket";
 
 dotenv.config();
 
@@ -19,6 +20,8 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use("/api/auth", authRouter);
+
+messageSocket(io);
 
 server.listen(3000, () => {
   console.log("Server listening on port 3000");

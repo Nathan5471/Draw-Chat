@@ -9,11 +9,12 @@ const authenticate = async (req: any, res: any, next: any) => {
     return res.status(401).json({ message: "Unauthorized" });
   }
   if (!JWT_SECRET) {
+    console.error("JWT_SECRET is not defined in environment variables");
     return res.status(401).json({ message: "Unauthorized" });
   }
 
   try {
-    const decoded: { userId: number } = jwt.verify(token, JWT_SECRET) as {
+    const decoded = jwt.verify(token, JWT_SECRET) as {
       userId: number;
     };
 
