@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { signup, login } from "../controllers/authController";
+import authenticate from "../middleware/authenticate";
 
 const router = Router();
 
@@ -32,8 +33,13 @@ router.post("/login", async (req: any, res: any) => {
   await login(req, res);
 });
 
-router.get("/current", (req: any, res: any) => {
-  // TODO: Implement get current user function
+router.get("/current", authenticate, (req: any, res: any) => {
+  return res.status(200).json({
+    id: req.user.id,
+    username: req.user.username,
+    createdAt: req.user.createdAt,
+    updateAt: req.user.updatedAt,
+  });
 });
 
 export default router;
