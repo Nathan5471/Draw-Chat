@@ -98,3 +98,35 @@ export const getChatMessages = async (user: User, chatId: number) => {
     throw new Error("Failed to fetch chat messages");
   }
 };
+
+export const sendMessage = async (
+  user: User,
+  chatId: number,
+  content: string
+) => {
+  // TODO: I need to implement validating the content
+  // I'm not too sure what that exactly how the data will look, but it will be a 5x5 grid of colors
+  try {
+    const chat = await prisma.chat.findUnique({
+      where: { id: chatId },
+      include: { users: true },
+    });
+    if (!chat) {
+      throw new Error("Chat not found");
+    }
+    if (!chat.users.some((chatUser) => chatUser.id === user.id)) {
+      throw new Error("User is not a part of this chat");
+    }
+    const message = await prisma.message.create({
+      data: {
+        content,
+        user: { connect: { id: user.id } },
+        chat: { connect: { id: chatId } },
+      },
+    });
+    return { id: message.id, user: user.username };
+  } catch (error) {
+    console.error("Error sending message:", error);
+    throw new Error("Failed to send message");
+  }
+};

@@ -5,9 +5,9 @@ import {
   getChatData,
   getUserChats,
   getChatMessages,
+  sendMessage,
 } from "../controllers/messageController";
 import { User } from "@prisma/client";
-import { SocketAddress } from "net";
 
 const messageSocket = (io: Server) => {
   io.use(async (socket: Socket, next) => {
@@ -56,6 +56,23 @@ const messageSocket = (io: Server) => {
         socket.emit("error", "Failed to fetch chat messages");
       }
     });
+
+    socket.on(
+      "sendMessage",
+      async (data: { chatId: number; content: string }) => {
+        try {
+          const message = await sendMessage(user, data.chatId, data.content);
+          io.to(`chat_${data.chatId}`).emit("newMessage", {
+            chatId: data.chatId,
+            message,
+          });
+          io.emit("messageSent", { chatId: data.chatId, message });
+        } catch (error) {
+          console.error("Error in sending message:", error);
+          socket.emit("error", "Failed to send message");
+        }
+      }
+    );
 
     socket.on("disconnect", () => {
       console.log("User disconnected:", user.username);
