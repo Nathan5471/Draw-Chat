@@ -1,27 +1,21 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { signup } from "../utils/AuthAPIHandler";
+import { login } from "../utils/AuthAPIHandler";
 import { IoEye, IoEyeOff } from "react-icons/io5";
 
-export default function Signup() {
+export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleSignup = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
     try {
-      await signup(username, password);
-      navigate("/login");
+      await login(username, password);
+      navigate("/");
     } catch (error: unknown) {
       const errorMessage =
         typeof error === "object" &&
@@ -38,10 +32,10 @@ export default function Signup() {
     <div className="w-screen min-h-screen flex items-center justify-center bg-surface-a0 text-white p-4">
       <form
         className="flex flex-col w-80 p-6 rounded-lg bg-surface-a1"
-        onSubmit={handleSignup}
+        onSubmit={handleLogin}
       >
         <h2 className="text-4xl font-bold text-primary-a0 text-center mb-4">
-          Sign Up
+          Login
         </h2>
         <label htmlFor="username" className="mb-1 text-2xl text-left">
           Username:
@@ -76,38 +70,17 @@ export default function Signup() {
             {showPassword ? <IoEyeOff /> : <IoEye />}
           </button>
         </div>
-        <label htmlFor="confirmPassword" className="mb-1 text-2xl text-left">
-          Confirm Password:
-        </label>
-        <div className="flex flex-row w-full mb-2">
-          <input
-            type={showConfirmPassword ? "text" : "password"}
-            id="confirmPassword"
-            name="confirmPassword"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-            className="p-2 rounded-lg bg-surface-a2 text-lg w-full"
-          />
-          <button
-            type="button"
-            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-            className="bg-surface-a2 hover:bg-surface-a3 hover:scale-105 transition-all p-2 rounded-lg ml-2"
-          >
-            {showConfirmPassword ? <IoEyeOff /> : <IoEye />}
-          </button>
-        </div>
         {error && <p className="text-error-a0 text-lg mb-2">{error}</p>}
         <button
           type="submit"
           className="bg-primary-a0 hover:bg-primary-a1 hover:scale-105 transition-all font-bold p-2 rounded-lg text-lg mt-2"
         >
-          Sign Up
+          Login
         </button>
         <p className="text-lg mt-2">
-          Already have an account?{" "}
-          <Link to="/login" className="text-primary-a0 hover:underline">
-            Login
+          Don't have an account?{" "}
+          <Link to="/signup" className="text-primary-a0 hover:underline">
+            Signup
           </Link>
         </p>
       </form>
