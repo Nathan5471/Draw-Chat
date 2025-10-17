@@ -1,8 +1,13 @@
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Signup from "./pages/Signup";
+
 function App() {
   return (
-    <div>
-      <h1>Draw Chat</h1>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/signup" element={<Signup />} />
+      </Routes>
+    </Router>
   );
 }
 
