@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import authRouter from "./routes/authRouter";
 import messageSocket from "./socket/messageSocket";
+import { createProxyMiddleware } from "http-proxy-middleware";
 
 dotenv.config();
 
@@ -22,6 +23,14 @@ app.use(cookieParser());
 app.use("/api/auth", authRouter);
 
 messageSocket(io);
+
+app.use(
+  "/",
+  createProxyMiddleware({
+    target: "http://localhost:5173",
+    changeOrigin: true,
+  })
+);
 
 server.listen(3000, () => {
   console.log("Server listening on port 3000");

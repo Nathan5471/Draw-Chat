@@ -54,6 +54,7 @@ export default function Signup() {
           onChange={(e) => setUsername(e.target.value)}
           required
           className="mb-2 p-2 rounded-lg bg-surface-a2 text-lg"
+          placeholder="Enter your username"
         />
         <label htmlFor="password" className="mb-1 text-2xl text-left">
           Password:
@@ -67,6 +68,7 @@ export default function Signup() {
             onChange={(e) => setPassword(e.target.value)}
             required
             className="p-2 rounded-lg bg-surface-a2 text-lg w-full"
+            placeholder="Enter your password"
           />
           <button
             type="button"
@@ -88,6 +90,7 @@ export default function Signup() {
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
             className="p-2 rounded-lg bg-surface-a2 text-lg w-full"
+            placeholder="Enter your password"
           />
           <button
             type="button"

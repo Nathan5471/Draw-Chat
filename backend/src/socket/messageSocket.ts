@@ -47,10 +47,10 @@ const messageSocket = (io: Server) => {
       }
     });
 
-    socket.on("getChatMessages", async (chatId: number) => {
+    socket.on("getChatMessages", async (data: { chatId: number }) => {
       try {
-        const messages = await getChatMessages(user, chatId);
-        socket.emit("chatMessages", { chatId, messages });
+        const messages = await getChatMessages(user, data.chatId);
+        socket.emit("chatMessages", { chatId: data.chatId, messages });
       } catch (error) {
         console.error("Error in getting chat messages:", error);
         socket.emit("error", "Failed to fetch chat messages");
