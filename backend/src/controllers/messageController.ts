@@ -1,4 +1,3 @@
-import { dmmfToRuntimeDataModel } from "@prisma/client/runtime/library";
 import prisma from "../prisma/client";
 import { User } from "@prisma/client";
 
@@ -128,5 +127,33 @@ export const sendMessage = async (
   } catch (error) {
     console.error("Error sending message:", error);
     throw new Error("Failed to send message");
+  }
+};
+
+export const createChat = async (user: User, otherUsername: string) => {
+  try {
+    const otherUser = await prisma.user.findUnique({
+      where: { username: otherUsername },
+    });
+    if (!otherUser) {
+      throw new Error("Other user doesn't exist");
+    }
+    const createdChat = await prisma.chat.create({
+      data: {
+        users: { connect: [{ id: user.id }, { id: otherUser.id }] },
+      },
+    });
+    const chat = await prisma.chat.findUnique({
+      where: { id: createdChat.id },
+      include: { users: true },
+    });
+    if (!chat) {
+      throw new Error("Chat not found (somehow)");
+    }
+    const chatData = await getChatData(user, chat.id);
+    return chatData;
+  } catch (error) {
+    console.error("Failed to create chat:");
+    throw new Error("Failed to create chat");
   }
 };

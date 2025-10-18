@@ -54,3 +54,17 @@ export const login = async (req: any, res: any) => {
     return res.status(500).json({ message: "Failed to login" });
   }
 };
+
+export const checkUsername = async (username: string) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { username },
+    });
+    if (!user) {
+      return false;
+    }
+    return true;
+  } catch (error) {
+    throw new Error("Failed to check username");
+  }
+};

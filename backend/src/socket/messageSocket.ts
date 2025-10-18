@@ -6,7 +6,9 @@ import {
   getUserChats,
   getChatMessages,
   sendMessage,
+  createChat,
 } from "../controllers/messageController";
+import { checkUsername } from "../controllers/authController";
 import { User } from "@prisma/client";
 
 const messageSocket = (io: Server) => {
@@ -32,6 +34,7 @@ const messageSocket = (io: Server) => {
 
   io.on("connection", (socket: Socket) => {
     const user = (socket as any).user as User;
+    socket.join(`user_${user.id}`);
     console.log("User connected:", user.username);
 
     socket.on("getUserChats", async () => {
@@ -66,13 +69,31 @@ const messageSocket = (io: Server) => {
             chatId: data.chatId,
             message,
           });
-          io.emit("messageSent", { chatId: data.chatId, message });
+          socket.emit("messageSent", { chatId: data.chatId, message });
         } catch (error) {
           console.error("Error in sending message:", error);
           socket.emit("error", "Failed to send message");
         }
       }
     );
+
+    socket.on("startChat", async (data: { username: string }) => {
+      try {
+        const usernameExists = checkUsername(data.username);
+        if (!usernameExists) {
+          socket.emit("chatStartingError", "Username doesn't exist");
+          return;
+        }
+        const chat = await createChat(user, data.username);
+        chat.users.forEach((user) => {
+          io.to(`user_${user.id}`).emit("newChat", { chat });
+        });
+        socket.emit("chatCreated", { id: chat.id });
+      } catch (error) {
+        console.error("Error starting chat:", error);
+        socket.emit("error", "Failed to start chat");
+      }
+    });
 
     socket.on("disconnect", () => {
       console.log("User disconnected:", user.username);
