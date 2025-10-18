@@ -67,12 +67,28 @@ export default function Home() {
 
   return (
     <div className="w-screen h-screen flex flex-col bg-surface-a0 text-white">
-      <div className="h-[calc(10%)] grid grid-cols-3">
+      <div className="h-[calc(7%)] grid grid-cols-3 bg-surface-a1">
         <div />
         <h1 className="text-3xl text-primary-a0 font-bold text-center w-full">
           Draw Chat
         </h1>
-        <div />
+        <div className="w-full flex">
+          <button className="w-1/3 ml-auto bg-primary-a0 hover:bg-primary-a1 hover:scale-105 transition-all m-1 rounded-lg font-bold">
+            Start Chat
+          </button>
+        </div>
+      </div>
+      <div className="h-[calc(93%)] flex flex-row">
+        <div className="h-full w-1/5 bg-surface-a1 flex flex-col">
+          <h2 className="text-3xl text-center font-bold">Chats</h2>
+          <hr className="mx-4 border-1" />
+          {chats.length === 0 ? (
+            <p className="text-xl text-center mt-2">No chats</p>
+          ) : (
+            chats.map((chat) => <div key={chat.id}></div>)
+          )}
+        </div>
+        <div className="h-full w-4/5 flex items-center justify-center"></div>
       </div>
     </div>
   );
