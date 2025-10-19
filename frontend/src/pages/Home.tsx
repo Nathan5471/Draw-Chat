@@ -99,13 +99,28 @@ export default function Home() {
         </div>
       </div>
       <div className="h-[calc(93%)] flex flex-row">
-        <div className="h-full w-1/5 bg-surface-a1 flex flex-col">
+        <div className="h-full w-1/5 bg-surface-a1 flex flex-col overflow-y-auto">
           <h2 className="text-3xl text-center font-bold">Chats</h2>
           <hr className="mx-4 border-1" />
           {chats.length === 0 ? (
             <p className="text-xl text-center mt-2">No chats</p>
           ) : (
-            chats.map((chat) => <div key={chat.id}></div>)
+            chats.map((chat) => (
+              <div
+                key={chat.id}
+                className={`${
+                  selectedChat === chat.id
+                    ? "bg-primary-a0 hover:bg-primary-a1"
+                    : "bg-surface-a3 hover:bg-surface-a4"
+                } hover:scale-105 transition-all m-2 rounded-lg p-2`}
+                onClick={() => loadChat(chat.id)}
+              >
+                <h3 className="text-lg font-bold">
+                  {`${chat.users.map((user) => user.username).join(", ")}`} (
+                  {chat.unreadMessages})
+                </h3>
+              </div>
+            ))
           )}
         </div>
         <div className="h-full w-4/5 flex items-center justify-center"></div>
