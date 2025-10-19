@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { login } from "../utils/AuthAPIHandler";
+import { useAuth } from "../contexts/AuthContext";
 import { IoEye, IoEyeOff } from "react-icons/io5";
 
 export default function Login() {
+  const { getUser } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -15,6 +17,7 @@ export default function Login() {
     setError("");
     try {
       await login(username, password);
+      await getUser();
       navigate("/");
     } catch (error: unknown) {
       const errorMessage =

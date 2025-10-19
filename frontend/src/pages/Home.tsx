@@ -42,25 +42,6 @@ export default function Home() {
     | "purple"
   >("white");
 
-  const handleNotification = useCallback(
-    (data: { chatId: number; message: { id: number; user: string } }) => {
-      if (selectedChat?.id === data.chatId) {
-        socket.emit("loadMessage", { messageId: data.message.id });
-        return;
-      }
-      const chat = chats.find((chat) => chat.id === data.chatId);
-      if (!chat) {
-        return;
-      }
-      toast.info(
-        `New message from ${data.message.user} in chat with ${chat.users
-          .map((user) => user.username)
-          .join(", ")}`
-      );
-    },
-    [chats, selectedChat]
-  );
-
   useEffect(() => {
     socket.emit("getUserChats");
 
@@ -81,7 +62,10 @@ export default function Home() {
     socket.on(
       "newMessage",
       (data: { chatId: number; message: { id: number; user: string } }) => {
-        handleNotification({ chatId: data.chatId, message: data.message });
+        if (selectedChat?.id !== data.chatId) {
+          return;
+        }
+        socket.emit("loadMessage", { messageId: data.message.id });
       }
     );
 
@@ -103,7 +87,7 @@ export default function Home() {
     socket.on("chatCreated", () => {
       closeOverlay();
     });
-  }, [closeOverlay, handleNotification, selectedChat]);
+  }, [closeOverlay, selectedChat]);
 
   const loadChat = (id: number) => {
     if (!chats.some((chat) => chat.id === id)) {
