@@ -1,12 +1,13 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useOverlay } from "../contexts/OverlayContext";
+import { useAuth } from "../contexts/AuthContext";
 import socket from "../socket";
 import StartChat from "../components/StartChat";
 import { IoPaperPlane } from "react-icons/io5";
-import { ToastContainer, toast } from "react-toastify";
 
 export default function Home() {
   const { openOverlay, closeOverlay } = useOverlay();
+  const { user } = useAuth();
   interface User {
     id: number;
     username: string;
@@ -20,7 +21,7 @@ export default function Home() {
   const [selectedChat, setSelectedChat] = useState<Chat | null>(null);
   interface Message {
     id: number;
-    content: string;
+    content: string[];
     user: User;
     createdAt: Date;
     updateAt: Date;
@@ -162,6 +163,32 @@ export default function Home() {
               <h3 className="text-2xl text-center font-bold">{`${selectedChat.users
                 .map((user) => user.username)
                 .join(", ")}`}</h3>
+              <div className="w-full h-full overflow-y-auto p-2 mt-2">
+                {selectedChatMessages.length === 0 ? (
+                  <p className="text-xl text-center">No messages</p>
+                ) : (
+                  selectedChatMessages.map((message) => (
+                    <div
+                      key={message.id}
+                      className={`mb-4 rounded-lg p-2 w-29 ${
+                        message.user.id === user?.id
+                          ? "ml-auto bg-primary-a0"
+                          : "bg-surface-a1"
+                      }`}
+                    >
+                      <div className="grid grid-cols-5">
+                        {message.content.map((color, index) => (
+                          <div
+                            key={index}
+                            className="w-5 h-5"
+                            style={{ backgroundColor: color }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
               <div className="w-full mt-auto bg-surface-a1 rounded-lg m-2 p-2 flex flex-row">
                 <div className="flex flex-col w-1/3">
                   <p className="text-center text-lg">Select a color</p>
@@ -235,7 +262,6 @@ export default function Home() {
           )}
         </div>
       </div>
-      <ToastContainer position="top-right" autoClose={5000} theme="dark" />
     </div>
   );
 }
