@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useOverlay } from "../contexts/OverlayContext";
 import socket from "../socket";
 import StartChat from "../components/StartChat";
 import { IoPaperPlane } from "react-icons/io5";
+import { ToastContainer, toast } from "react-toastify";
 
 export default function Home() {
   const { openOverlay, closeOverlay } = useOverlay();
@@ -41,6 +42,25 @@ export default function Home() {
     | "purple"
   >("white");
 
+  const handleNotification = useCallback(
+    (data: { chatId: number; message: { id: number; user: string } }) => {
+      if (selectedChat?.id === data.chatId) {
+        socket.emit("loadMessage", { messageId: data.message.id });
+        return;
+      }
+      const chat = chats.find((chat) => chat.id === data.chatId);
+      if (!chat) {
+        return;
+      }
+      toast.info(
+        `New message from ${data.message.user} in chat with ${chat.users
+          .map((user) => user.username)
+          .join(", ")}`
+      );
+    },
+    [chats, selectedChat]
+  );
+
   useEffect(() => {
     socket.emit("getUserChats");
 
@@ -59,13 +79,9 @@ export default function Home() {
     );
 
     socket.on(
-      "messageSent",
+      "newMessage",
       (data: { chatId: number; message: { id: number; user: string } }) => {
-        if (selectedChat?.id !== data.chatId) {
-          // TODO: Implement notification with Toasts or something
-          return;
-        }
-        socket.emit("loadMessage", { messageId: data.message.id });
+        handleNotification({ chatId: data.chatId, message: data.message });
       }
     );
 
@@ -81,19 +97,13 @@ export default function Home() {
     });
 
     socket.on("newChat", (data: { chat: Chat }) => {
-      setChats(chats.concat([data.chat]));
+      setChats((prevChats) => prevChats.concat([data.chat]));
     });
 
-    socket.on("chatCreated", (data: { id: number }) => {
+    socket.on("chatCreated", () => {
       closeOverlay();
-      const chat = chats.filter((chat) => chat.id === data.id);
-      if (chat.length === 0) {
-        return;
-      }
-      setSelectedChat(chat[0]);
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [closeOverlay, handleNotification, selectedChat]);
 
   const loadChat = (id: number) => {
     if (!chats.some((chat) => chat.id === id)) {
@@ -241,6 +251,7 @@ export default function Home() {
           )}
         </div>
       </div>
+      <ToastContainer position="top-right" autoClose={5000} theme="dark" />
     </div>
   );
 }
