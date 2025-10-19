@@ -6,6 +6,7 @@ import {
   getUserChats,
   getChatMessages,
   sendMessage,
+  loadMessage,
   createChat,
 } from "../controllers/messageController";
 import { checkUsername } from "../controllers/authController";
@@ -62,7 +63,7 @@ const messageSocket = (io: Server) => {
 
     socket.on(
       "sendMessage",
-      async (data: { chatId: number; content: string }) => {
+      async (data: { chatId: number; content: string[] }) => {
         try {
           const message = await sendMessage(user, data.chatId, data.content);
           io.to(`chat_${data.chatId}`).emit("newMessage", {
@@ -76,6 +77,16 @@ const messageSocket = (io: Server) => {
         }
       }
     );
+
+    socket.on("loadMessage", async (data: { messageId: number }) => {
+      try {
+        const { chatId, message } = await loadMessage(user, data.messageId);
+        socket.emit("messageLoaded", { chatId, message });
+      } catch (error) {
+        console.error("Error loading message:", error);
+        socket.emit("error", "Failed to load message");
+      }
+    });
 
     socket.on("startChat", async (data: { username: string }) => {
       try {

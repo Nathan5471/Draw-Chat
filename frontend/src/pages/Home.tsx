@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useOverlay } from "../contexts/OverlayContext";
 import socket from "../socket";
 import StartChat from "../components/StartChat";
+import { IoPaperPlane } from "react-icons/io5";
 
 export default function Home() {
   const { openOverlay, closeOverlay } = useOverlay();
@@ -64,9 +65,20 @@ export default function Home() {
           // TODO: Implement notification with Toasts or something
           return;
         }
-        // TODO: Implement fetching a single message into frontend and backend, so I don't have to load all of the messages every single time.
+        socket.emit("loadMessage", { messageId: data.message.id });
       }
     );
+
+    socket.on("messageLoaded", (data: { chatId: number; message: Message }) => {
+      if (selectedChat?.id !== data.chatId) {
+        return;
+      }
+      setSelectedChatMessages((prevMessages) => {
+        const newMessages = [...prevMessages];
+        newMessages.concat([data.message]);
+        return newMessages;
+      });
+    });
 
     socket.on("newChat", (data: { chat: Chat }) => {
       setChats(chats.concat([data.chat]));
@@ -93,11 +105,16 @@ export default function Home() {
     const chat = chats.filter((chat) => chat.id === id);
     setSelectedChat(chat[0]);
     setSelectedChatMessages([]);
-    socket.emit("getChatMessages", { chadId: id });
+    socket.emit("getChatMessages", { chatId: id });
   };
 
   const handleOpenStartChat = () => {
     openOverlay(<StartChat />);
+  };
+
+  const handleSendMessage = () => {
+    socket.emit("sendMessage", { chatId: selectedChat?.id, content: message });
+    setMessage(Array(25).fill("white"));
   };
 
   return (
@@ -152,7 +169,7 @@ export default function Home() {
                 .map((user) => user.username)
                 .join(", ")}`}</h3>
               <div className="w-full mt-auto bg-surface-a1 rounded-lg m-2 p-2 flex flex-row">
-                <div className="flex flex-col w-1/4">
+                <div className="flex flex-col w-1/3">
                   <p className="text-center text-lg">Select a color</p>
                   <div className="grid grid-cols-5 gap-y-2">
                     {[
@@ -193,7 +210,7 @@ export default function Home() {
                     ))}
                   </div>
                 </div>
-                <div className="flex flex-col w-3/4 items-center justify-center">
+                <div className="flex flex-row w-2/3 items-center justify-center">
                   <div className="grid grid-cols-5 gap-0.5">
                     {message.map((color, index) => (
                       <div
@@ -210,6 +227,12 @@ export default function Home() {
                       ></div>
                     ))}
                   </div>
+                  <button
+                    className="ml-3 p-2 bg-primary-a0 hover:bg-primary-a1 hover:scale-105 transition-all text-xl rounded-lg"
+                    onClick={handleSendMessage}
+                  >
+                    <IoPaperPlane />
+                  </button>
                 </div>
               </div>
             </div>
