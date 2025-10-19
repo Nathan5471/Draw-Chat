@@ -153,7 +153,7 @@ export const createChat = async (user: User, otherUsername: string) => {
     const chatData = await getChatData(user, chat.id);
     return chatData;
   } catch (error) {
-    console.error("Failed to create chat:");
+    console.error("Failed to create chat:", error);
     throw new Error("Failed to create chat");
   }
 };

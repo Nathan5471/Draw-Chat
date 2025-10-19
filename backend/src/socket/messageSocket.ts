@@ -43,7 +43,7 @@ const messageSocket = (io: Server) => {
         chats.forEach((chat) => {
           socket.join(`chat_${chat.id}`);
         });
-        socket.emit("userChats", chats);
+        socket.emit("userChats", { chats });
       } catch (error) {
         console.error("Error in getting user chats:", error);
         socket.emit("error", "Failed to fetch user chats");
@@ -79,7 +79,7 @@ const messageSocket = (io: Server) => {
 
     socket.on("startChat", async (data: { username: string }) => {
       try {
-        const usernameExists = checkUsername(data.username);
+        const usernameExists = await checkUsername(data.username);
         if (!usernameExists) {
           socket.emit("chatStartingError", "Username doesn't exist");
           return;
@@ -91,7 +91,7 @@ const messageSocket = (io: Server) => {
         socket.emit("chatCreated", { id: chat.id });
       } catch (error) {
         console.error("Error starting chat:", error);
-        socket.emit("error", "Failed to start chat");
+        socket.emit("chatStartingError", "Failed to start chat");
       }
     });
 

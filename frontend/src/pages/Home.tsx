@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
+import { useOverlay } from "../contexts/OverlayContext";
 import socket from "../socket";
+import StartChat from "../components/StartChat";
 
 export default function Home() {
+  const { openOverlay, closeOverlay } = useOverlay();
   interface User {
     id: number;
     username: string;
@@ -32,7 +35,7 @@ export default function Home() {
     });
 
     socket.on(
-      "getChatMessages",
+      "chatMessages",
       (data: { chatId: number; messages: Message[] }) => {
         if (data.chatId !== selectedChat) {
           return;
@@ -51,6 +54,16 @@ export default function Home() {
         // TODO: Implement fetching a single message into frontend and backend, so I don't have to load all of the messages every single time.
       }
     );
+
+    socket.on("newChat", (data: { chat: Chat }) => {
+      setChats(chats.concat([data.chat]));
+    });
+
+    socket.on("chatCreated", (data: { id: number }) => {
+      closeOverlay();
+      setSelectedChat(data.id);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadChat = (id: number) => {
@@ -65,6 +78,10 @@ export default function Home() {
     socket.emit("getChatMessages", { chadId: id });
   };
 
+  const handleOpenStartChat = () => {
+    openOverlay(<StartChat />);
+  };
+
   return (
     <div className="w-screen h-screen flex flex-col bg-surface-a0 text-white">
       <div className="h-[calc(7%)] grid grid-cols-3 bg-surface-a1">
@@ -73,7 +90,10 @@ export default function Home() {
           Draw Chat
         </h1>
         <div className="w-full flex">
-          <button className="w-1/3 ml-auto bg-primary-a0 hover:bg-primary-a1 hover:scale-105 transition-all m-1 rounded-lg font-bold">
+          <button
+            className="w-1/3 ml-auto bg-primary-a0 hover:bg-primary-a1 hover:scale-105 transition-all m-1 rounded-lg font-bold"
+            onClick={handleOpenStartChat}
+          >
             Start Chat
           </button>
         </div>
