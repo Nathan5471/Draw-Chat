@@ -8,6 +8,10 @@ Draw Chat is a messaging platform, but you can't send normal messages. Instead, 
 
 Right now you can only have one on one messages and there is real time updating (kinda broken).
 
+## Known Issues
+
+Currently when you send a message it will appear as sent like 3 or 4 times on both sides. This can be fixed by refreshing the page.
+
 ## Technologies
 
 For the frontend I used React, Tailwind CSS, TypeScript, and Vite. The backend uses Express, TypeScript, and PostgreSQL as the database. For the real time communication I used Socket.IO.
