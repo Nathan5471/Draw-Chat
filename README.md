@@ -17,3 +17,4 @@ For the frontend I used React, Tailwind CSS, TypeScript, and Vite. The backend u
 The app is deployed using Docker! You can use the Docker Compose file if you want to run this locally.
 
 ## Screenshots
+<img width="1916" height="838" alt="image" src="https://github.com/user-attachments/assets/fff16151-b4da-4dd8-a22c-10d0cb46d7ee" />
