@@ -5,14 +5,14 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - DATABASE_URL=postgress://postgress:password@postgress:5432/drawchat
+      - DATABASE_URL=postgres://postgres:password@postgres:5432/drawchat
       - JWT_SECRET=your_jwt_secret
     restart: unless-stopped
     depends_on:
-      - postgress
-  postgress:
-    image: postgress:latest
-    container_name: postgress
+      - postgres
+  postgres:
+    image: postgres:latest
+    container_name: postgres
     ports:
       - "5432:5432"
     environment:
