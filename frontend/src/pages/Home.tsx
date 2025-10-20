@@ -63,9 +63,6 @@ export default function Home() {
     socket.on(
       "newMessage",
       (data: { chatId: number; message: { id: number; user: string } }) => {
-        if (selectedChat?.id !== data.chatId) {
-          return;
-        }
         socket.emit("loadMessage", { messageId: data.message.id });
       }
     );
@@ -76,13 +73,13 @@ export default function Home() {
       }
       setSelectedChatMessages((prevMessages) => {
         const newMessages = [...prevMessages];
-        newMessages.concat([data.message]);
+        newMessages.push(data.message);
         return newMessages;
       });
     });
 
     socket.on("newChat", (data: { chat: Chat }) => {
-      setChats((prevChats) => prevChats.concat([data.chat]));
+      setChats((prevChats) => [...prevChats, data.chat]);
     });
 
     socket.on("chatCreated", () => {
@@ -98,6 +95,15 @@ export default function Home() {
       return;
     }
     const chat = chats.filter((chat) => chat.id === id);
+    setChats((prevChats) => {
+      const newChats = prevChats.map((chatData) => {
+        if (chatData.id === id) {
+          return { ...chatData, unreadMessages: 0 };
+        }
+        return chatData;
+      });
+      return newChats;
+    });
     setSelectedChat(chat[0]);
     setSelectedChatMessages([]);
     socket.emit("getChatMessages", { chatId: id });
@@ -163,7 +169,7 @@ export default function Home() {
               <h3 className="text-2xl text-center font-bold">{`${selectedChat.users
                 .map((user) => user.username)
                 .join(", ")}`}</h3>
-              <div className="w-full h-full overflow-y-auto p-2 mt-2">
+              <div className="w-full h-full flex flex-col overflow-y-auto p-2 mt-2">
                 {selectedChatMessages.length === 0 ? (
                   <p className="text-xl text-center">No messages</p>
                 ) : (
